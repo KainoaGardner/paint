@@ -12,6 +12,7 @@ screen = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("Paint")
 clock = pygame.time.Clock()
 
-# font = pygame.font.Font("font/")
+
 
 WHITE = "#ecf0f1"
+BLACK = "#2d3436"
