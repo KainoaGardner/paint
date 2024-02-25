@@ -1,6 +1,10 @@
+import sys
+
 import pygame
 
 pygame.init()
+sys.setrecursionlimit(10000)
+
 TILESIZE = 8
 MARGINSIZE = TILESIZE * 3
 BOTTOMBAR = TILESIZE * 20
