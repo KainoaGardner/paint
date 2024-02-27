@@ -45,6 +45,7 @@ def main():
                     if len(canvas.redoHistory) > 0:
                         canvas.redoHistory = []
                 canvas.penDown = False
+                canvas.mouseHistory = []
 
 
 

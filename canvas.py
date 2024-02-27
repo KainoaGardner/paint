@@ -1,4 +1,5 @@
 from settings import *
+
 class Canvas():
     def __init__(self):
         self.canvas = []
@@ -22,6 +23,8 @@ class Canvas():
         self.tempHistory = []
         self.redoHistory = []
         self.history = []
+        self.mouseHistory = []
+        self.count = 0
 
         self.colorDict = {0:self.white,1:self.black,2:self.gray,3:self.brown,4:self.red,5:self.orange,6:self.yellow,7:self.green,8:self.blue,9:self.purple}
 
@@ -40,31 +43,34 @@ class Canvas():
         if self.penDown and not self.fillOn:
             mos = pygame.mouse.get_pos()
             if MARGINSIZE <= mos[0] < WIDTH - MARGINSIZE and MARGINSIZE <= mos[1] < HEIGHT - BOTTOMBAR - MARGINSIZE:
+                self.getMouseDiff(mos)
                 r = (mos[1] - MARGINSIZE) // TILESIZE
                 c = (mos[0] - MARGINSIZE) // TILESIZE
                 if self.canvas[r][c] != self.selectedColor:
                     self.tempHistory.append(((r, c), (self.canvas[r][c],self.selectedColor)))
                     self.canvas[r][c] = self.selectedColor
 
+                self.bigBrush(r,c)
 
-                top,bot = r,r
-                right,left = c,c
-                for i in range(self.penSize):
-                    if r - i >= 0:
-                        top = r - i
-                    if c - i >= 0:
-                        left = c -i
-                    if r + i <= 100:
-                        bot = r + i
-                    if c + i <= 100:
-                        right = c + i
 
-                for k in range(bot - top):
-                    for j in range(right - left):
-                        if self.canvas[top + k][left + j] != self.selectedColor:
-                            self.tempHistory.append(((top + k, left + j), (self.canvas[top + k][left + j],self.selectedColor)))
-                            self.canvas[top + k][left + j] = self.selectedColor
+    def bigBrush(self,r,c):
+        top, bot = r, r
+        right, left = c, c
+        for i in range(self.penSize):
+            if r - i >= 0:
+                top = r - i
+            if c - i >= 0:
+                left = c - i
+            if r + i <= 100:
+                bot = r + i
+            if c + i <= 100:
+                right = c + i
 
+        for k in range(bot - top):
+            for j in range(right - left):
+                if self.canvas[top + k][left + j] != self.selectedColor:
+                    self.tempHistory.append(((top + k, left + j), (self.canvas[top + k][left + j], self.selectedColor)))
+                    self.canvas[top + k][left + j] = self.selectedColor
 
 
     def fillCursor(self):
@@ -73,8 +79,77 @@ class Canvas():
         else:
             pygame.mouse.set_cursor(pygame.cursors.Cursor(pygame.SYSTEM_CURSOR_ARROW))
 
+    def getMouseDiff(self,mos):
+        self.count += 1
+        if self.count % 60 == 0:
+            self.count = 0
+        self.mouseHistory.append(mos)
+        if len(self.mouseHistory) > 2:
+            self.mouseHistory.pop(0)
+
+        if len(self.mouseHistory) == 2:
+            if self.mouseHistory[0] != self.mouseHistory[1]:
+                self.fillGap()
+
+    def fillGap(self):
+        x1 = (self.mouseHistory[0][0] - MARGINSIZE) // TILESIZE
+        y1 = (self.mouseHistory[0][1] - MARGINSIZE) // TILESIZE
+        x2 = (self.mouseHistory[1][0] - MARGINSIZE) // TILESIZE
+        y2 = (self.mouseHistory[1][1] - MARGINSIZE) // TILESIZE
+        xDif = x2 - x1
+        yDif = y2 - y1
+
+        if abs(xDif) >= abs(yDif):
+            big = xDif
+            small = yDif
+            i = 0
+            k = 0
+            while abs(i) < abs(big):
+                if xDif > 0:
+                    i += 1
+                else:
+                    i -= 1
+                if small != 0:
+                    if i % abs(big) // abs(small) == 0:
+                        if yDif > 0:
+                            k += 1
+                        else:
+                            k -= 1
+                if 0 <= y1 + k < 100 and 0 <= x1 + i < 100:
+                    if self.canvas[y1 + k][x1 + i] != self.selectedColor:
+                        self.tempHistory.append(((y1 + k, x1 + i), (self.canvas[y1 + k][x1 + i], self.selectedColor)))
+                        self.canvas[y1 + k][x1 + i] = self.selectedColor
+                    self.bigBrush(y1 + k, x1 + i)
+        else:
+            big = yDif
+            small = xDif
+            i = 0
+            k = 0
+            while abs(i) < abs(big):
+                if yDif > 0:
+                    i += 1
+                else:
+                    i -= 1
+                if small != 0:
+                    if i % abs(big) // abs(small) == 0:
+                        if xDif > 0:
+                            k += 1
+                        else:
+                            k -= 1
+                if 0 <= y1 + i < 100 and 0 <= x1 + k < 100:
+                    if self.canvas[y1 + i][x1 + k] != self.selectedColor:
+                        self.tempHistory.append(((y1 + i, x1 + k), (self.canvas[y1 + i][x1 + k], self.selectedColor)))
+                        self.canvas[y1 + i][x1 + k] = self.selectedColor
+
+                    self.bigBrush(y1 + i, x1 + k)
+
+
+
+
+
+
     def fill(self,pos):
-        if pos[0] < 0 or pos[0] >= len(self.canvas) or pos[1] < 0 or pos[1] >= len(self.canvas[0]) or self.canvas[pos[0]][pos[1]] == self.selectedColor:
+        if pos[0] < 0 or pos[0] >= len(self.canvas) or pos[1] < 0 or pos[1] >= len(self.canvas[0]) or self.canvas[pos[0]][pos[1]] != self.firstColor:
             return
         else:
             self.tempHistory.append(((pos[0],pos[1]), (self.canvas[pos[0]][pos[1]],self.selectedColor)))
@@ -85,7 +160,8 @@ class Canvas():
             self.fill((pos[0], pos[1] - 1))
 
     def floodFill(self,pos):
-        if self.canvas[pos[0]][pos[1]] == self.selectedColor:
+        self.firstColor = self.canvas[pos[0]][pos[1]]
+        if self.canvas[pos[0]][pos[1]] != self.firstColor:
             return
         else:
             self.fill((pos[0], pos[1]))
