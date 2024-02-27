@@ -36,7 +36,7 @@ def main():
                 if save.getClicked(mos):
                     canvas.saveGrid()
                 if load.getClicked(mos):
-                    canvas.saveImg()
+                    canvas.load()
 
             if event.type == pygame.MOUSEBUTTONUP:
                 if canvas.tempHistory != []:

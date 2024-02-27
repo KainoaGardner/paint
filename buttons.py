@@ -48,15 +48,14 @@ clear = Buttons("clear",20,MARGINSIZE + TILESIZE * 60,MARGINSIZE + TILESIZE * 11
 undo = Buttons("undo",20,MARGINSIZE + TILESIZE * 70,MARGINSIZE + TILESIZE * 100,TILESIZE *10,TILESIZE * 10,WHITE)
 redo = Buttons("redo",20,MARGINSIZE + TILESIZE * 70,MARGINSIZE + TILESIZE * 110,TILESIZE *10,TILESIZE * 10,WHITE)
 
-save = Buttons("save",15,MARGINSIZE + TILESIZE * 80,MARGINSIZE + TILESIZE * 100,TILESIZE *10,TILESIZE * 10,WHITE)
-saveImg = Buttons("saveImg",15,MARGINSIZE + TILESIZE * 90,MARGINSIZE + TILESIZE * 100,TILESIZE *10,TILESIZE * 10,WHITE)
+save = Buttons("save",30,MARGINSIZE + TILESIZE * 80,MARGINSIZE + TILESIZE * 100,TILESIZE *20,TILESIZE * 10,WHITE)
 load = Buttons("load",30,MARGINSIZE + TILESIZE * 80,MARGINSIZE + TILESIZE * 110,TILESIZE *20,TILESIZE * 10,WHITE)
 
 
 colorButtonList = [whiteButton,blackButton,grayButton,brownButton,redButton,orangeButton,yellowButton,greenButton,blueButton,purpleButton]
 penSizeList = [smallButton,midButton,bigmidButton,bigButton]
 
-buttonList = [fill,clear,undo,redo,save,saveImg,load]
+buttonList = [fill,clear,undo,redo,save,load]
 
 for button in penSizeList:
     buttonList.append(button)

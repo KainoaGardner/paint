@@ -1,4 +1,6 @@
 from settings import *
+from tkinter import filedialog
+
 
 class Canvas():
     def __init__(self):
@@ -180,11 +182,32 @@ class Canvas():
             self.history.append(self.redoHistory[-1])
             self.redoHistory.pop(-1)
 
-    def saveImg(self):
-        pygame.image.save(screen,"image.png")
-
     def saveGrid(self):
-        pass
+        file = filedialog.asksaveasfile(defaultextension=".txt", filetypes=[("Text file", ".txt")])
+        if file is None:
+            return
+        filetext = ""
+        for r,row in enumerate(self.canvas):
+            for pixel in row:
+                filetext += str(pixel)
+            if r < len(self.canvas) - 1:
+                filetext += "\n"
+
+        file.write(filetext)
+        file.close()
+
+    def load(self):
+        filepath = filedialog.askopenfilename()
+        if filepath is None or filepath == '':
+            return
+        else:
+            with open(filepath,"r") as file:
+                text = file.readlines()
+                for r,line in enumerate(text):
+                    newline = line.replace("\n", "")
+                    for c,pixel in enumerate(newline):
+                        self.canvas[r][c] = int(pixel)
+            file.close()
 
     def displayLines(self):
         for i in range(2):
